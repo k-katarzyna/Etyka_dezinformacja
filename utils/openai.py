@@ -142,9 +142,11 @@ def requires_new_context(question: str, previous_response: str, api_key: str) ->
 
 
 def ask_openai(messages, api_key, required_tag, model="gpt-4o-mini"):
-    # Cache for context storage per session
     if 'context_instruction' not in st.session_state:
         st.session_state['context_instruction'] = ''
+    if 'context_tags' not in st.session_state:
+        st.session_state['context_tags'] = []
+
     client = OpenAI(api_key=api_key)
     last_user = messages[-1]["content"]
 
@@ -167,28 +169,41 @@ def ask_openai(messages, api_key, required_tag, model="gpt-4o-mini"):
         )
         return response.choices[0].message.content
 
-    from .load_context import search_chunks
-    if requires_new_context(last_user, messages[-2]["content"], api_key) or not st.session_state['context_instruction']:
-        tags = extract_tags(last_user, api_key)
-        emb  = embed_text(last_user, api_key)
-        chunks = search_chunks(emb, required_tag, tags)
-        block = "\n\n".join(f"Źródło: {c.get('source')}\nTags: {c.get("tags", "")}\nURL: {c.get('url', "")}\n{c['content']}"
-                            for c in chunks)
-        inst = (
-            "Odpowiedz w szczególności na podstawie poniższej wiedzy (źródło poszerza odpowiedź na pytanie, dodaj URL.):\n\n"
-            f"{block}\n\n"
-            ""
+    # === OCENA NOWEGO KONTEKSTU ===
+    previous_response = messages[-2]["content"] if len(messages) >= 2 else ""
+    new_context_needed = requires_new_context(last_user, previous_response, api_key)
+    no_context_yet = not st.session_state.get("context")
+
+    if new_context_needed or no_context_yet:
+        from .load_context import search_chunks
+        new_tags = extract_tags(last_user, api_key)
+        emb = embed_text(last_user, api_key)
+        chunks = search_chunks(emb, required_tag, new_tags)
+
+        block = "\n\n".join(
+            f"Artkuł: {c.get('source')}\nTags: {c.get('tags', '')}\nURL: {c.get('url', '')}\n{c['content']}\n\n"
+            for c in chunks
         )
-        st.session_state['context_instruction'] = inst
 
-    system_msg = deepcopy(messages[0])
-    system_msg["content"] += st.session_state['context_instruction']
-    convo = [system_msg] + [m for m in messages if m["role"] != "system"]
+        context = "\n\n".join(
+            f"Artkuł: {c.get('source')}\nTags: {c.get('tags', '')}\nURL: {c.get('url', '')}\n{c['content']}\n\n"
+            for c in chunks
+        )
+        st.session_state['context'] = context
+        st.session_state['context_tags'] = new_tags
+
+    system_msg = deepcopy(st.session_state.messages[0])
+    convo = (
+            [{
+                "role": "system",
+                "content": system_msg["content"] + st.session_state['context']
+            }] +
+            [msg for msg in st.session_state.messages if msg["role"] != "system"]
+    )
     print(convo)
-
     try:
         resp = client.chat.completions.create(
-            model=model,
+            model="gpt-4.1",
             messages=convo
         )
         return resp.choices[0].message.content

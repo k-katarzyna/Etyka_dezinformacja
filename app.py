@@ -55,13 +55,34 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+st.markdown("""
+<style>
+    html[data-theme="dark"], html[data-theme="dark"] body, html[data-theme="dark"] [data-testid="stApp"] {
+        background-color: #FFF3E6 !important;
+        color: #1B1F3B !important;
+    }
+
+    html[data-theme="dark"] .stButton>button {
+        background-color: #FF8C69 !important;
+        color: white !important;
+    }
+
+    html[data-theme="dark"] .stButton>button:hover {
+        background-color: #E2735F !important;
+        color: white !important;
+    }
+
+    html[data-theme="dark"] .typing {
+        color: #2B2B2B !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 openai_api_key = st.secrets["openai"]["api_key"]
 
 
 if "messages" not in st.session_state:
-    st.session_state.messages = [
-        {"role": "system", "content": "Jesteś ekspertem od dezinformacji generowanej przez AI. Odpowiadasz rzeczowo, konkretnie, przyjaźnie i empatycznie."}
-    ]
+    st.session_state.messages = []
 if "context_mode" not in st.session_state:
     st.session_state.context_mode = None
 if "context_initialized" not in st.session_state:
@@ -77,7 +98,7 @@ if st.button("🔄 Resetuj czat"):
 if st.session_state.context_mode is None:
     st.markdown("""
     ### Witaj!  
-    Jestem specjalistą od dezinformacji generowanej przez AI.  
+    Jestem etycznym specjalistą od dezinformacji generowanej przez AI w internecie.  
     Pomogę Ci w poszerzeniu wiedzy w tym temacie, abyś był bardziej odporny na manipulację.  
     Wybierz swoją potrzebę:
     """)
@@ -85,25 +106,25 @@ if st.session_state.context_mode is None:
     with col1:
         if st.button("📝 Tworzę i publikuję treści przy pomocy AI, na co powinienem uważać?"):
             st.session_state.context_mode = "creator"
-            st.session_state.messages.append({
-                "role": "system",
-                "content": (
-                    "Użytkownik to twórca treści. "
-                    "Potrzebuje informacji, jak odpowiedzialnie korzystać z AI i unikać szerzenia dezinformacji."
-                )
-            })
+            st.session_state.messages = [
+                {"role": "system",
+                 "content": ("Jesteś ekspertem od dezinformacji generowanej przez AI. Odpowiadasz konkretnie, przyjaźnie i empatycznie. "
+                            "Użytkownik to twórca treści. "
+                            "Potrzebuje informacji, jak odpowiedzialnie korzystać z AI i unikać szerzenia dezinformacji. "
+                            "Odpowiedz na jego pytanie na podstawie poniższego tekstu (załącz różne urls, JEŚLI SĄ PODANE PRZY TEKSTACH, ale nie powtarzaj ich wielokrotnie):")
+                 }]
             st.session_state.context_initialized = True
             st.rerun()
     with col2:
         if st.button("🔍 Chcę się dowiedzieć, jak nie paść ofiarą dezinformacji"):
             st.session_state.context_mode = "consumer"
-            st.session_state.messages.append({
-                "role": "system",
-                "content": (
-                    "Użytkownik chce nauczyć się rozpoznawać dezinformację "
-                    "i nie paść jej ofiarą. Szuka sposobów na ochronę przed fałszywymi treściami."
-                )
-            })
+            st.session_state.messages = [
+                {"role": "system",
+                 "content": ("Jesteś ekspertem od dezinformacji generowanej przez AI. Odpowiadasz konkretnie, przyjaźnie i empatycznie. "
+                            "Użytkownik chce nauczyć się rozpoznawać dezinformację "
+                            "i nie paść jej ofiarą. Szuka sposobów na ochronę przed fałszywymi treściami. "
+                            "Odpowiedz na jego pytanie na podstawie poniższego tekstu (załącz różne urls, JEŚLI SĄ PODANE PRZY TEKSTACH, ale nie powtarzaj ich wielokrotnie):")
+                 }]
             st.session_state.context_initialized = True
             st.rerun()
 
