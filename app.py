@@ -55,39 +55,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown("""
-<style>
-
-html[data-theme="dark"] {
-    /* globalne kolory */
-    --text-color: #1B1F3B !important;
-    --secondary-text-color: #1B1F3B !important;
-    --background-color: #FFF3E6 !important;
-    --block-background-color: #FFF3E6 !important;
-    color-scheme: light;
-}
-
-html[data-theme="dark"],
-html[data-theme="dark"] body,
-html[data-theme="dark"] [data-testid="stApp"] {
-    background-color: #FFF3E6 !important;
-    color: #1B1F3B !important;
-}
-
-html[data-theme="dark"] .stButton>button {
-    background-color: #FF8C69 !important;
-    color: #fff !important;
-}
-html[data-theme="dark"] .stButton>button:hover {
-    background-color: #E2735F !important;
-}
-
-html[data-theme="dark"] .typing {
-    color: #2B2B2B !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
 openai_api_key = st.secrets["openai"]["api_key"]
 
 if "messages" not in st.session_state:
@@ -120,7 +87,7 @@ if st.session_state.context_mode is None:
                  "content": ("Jesteś ekspertem od dezinformacji generowanej przez AI. Odpowiadasz konkretnie, przyjaźnie i empatycznie. "
                             "Użytkownik to twórca treści. "
                             "Potrzebuje informacji, jak odpowiedzialnie korzystać z AI i unikać szerzenia dezinformacji. "
-                            "Odpowiedz na jego pytanie na podstawie poniższego tekstu (załącz różne urls, JEŚLI SĄ PODANE PRZY TEKSTACH, ale nie powtarzaj ich wielokrotnie):")
+                            "Odpowiedz na jego pytanie na podstawie poniższych źródeł (załącz urls na końcu odpowiedzi, JEŚLI TYTUŁ ARTYKUŁU JEST W TEMACIE PYTANIA I SĄ PODANE PRZY ŹRÓDŁACH:")
                  }]
             st.session_state.context_initialized = True
             st.rerun()
@@ -132,7 +99,7 @@ if st.session_state.context_mode is None:
                  "content": ("Jesteś ekspertem od dezinformacji generowanej przez AI. Odpowiadasz konkretnie, przyjaźnie i empatycznie. "
                             "Użytkownik chce nauczyć się rozpoznawać dezinformację "
                             "i nie paść jej ofiarą. Szuka sposobów na ochronę przed fałszywymi treściami. "
-                            "Odpowiedz na jego pytanie na podstawie poniższego tekstu (załącz różne urls, JEŚLI SĄ PODANE PRZY TEKSTACH, ale nie powtarzaj ich wielokrotnie):")
+                            "Odpowiedz na jego pytanie na podstawie poniższych źródeł (załącz urls na końcu odpowiedzi, JEŚLI TYTUŁ ARTYKUŁU JEST W TEMACIE PYTANIA I SĄ PODANE PRZY ŹRÓDŁACH:")
                  }]
             st.session_state.context_initialized = True
             st.rerun()

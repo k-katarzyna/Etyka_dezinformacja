@@ -181,7 +181,7 @@ def ask_openai(messages, api_key, required_tag, model="gpt-4o-mini"):
         chunks = search_chunks(emb, required_tag, new_tags)
 
         context = "\n\n".join(
-            f"Artykuł: {c.get('source')}\nTags: {c.get('tags', '')}\nURL: {c.get('url', '')}\n{c['content']}\n\n"
+            f"Tytuł artykułu: {c.get('source')}\nTags: {c.get('tags', '')}\nURL: {c.get('url', '')}\n{c['content']}\n\n"
             for c in chunks
         )
         st.session_state['context'] = context
