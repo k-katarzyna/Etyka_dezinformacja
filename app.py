@@ -149,24 +149,24 @@ if user_input:
         placeholder.markdown(response)
         st.session_state.messages.append({"role": "assistant", "content": response})
 
-    if len(st.session_state.messages) > 10:
+    if len(st.session_state.messages) > 7:
         system_messages = [m for m in st.session_state.messages if m["role"] == "system"]
         chat_messages = [m for m in st.session_state.messages if m["role"] in ("user", "assistant")]
 
         user_count = sum(1 for m in chat_messages if m["role"] == "user")
         assistant_count = sum(1 for m in chat_messages if m["role"] == "assistant")
 
-        if user_count > 5 or assistant_count > 4:
+        if user_count > 3 or assistant_count > 3:
             new_chat_messages = []
             u_count, a_count = 0, 0
 
             for msg in reversed(chat_messages):
                 if msg["role"] == "user":
-                    if u_count < 5:
+                    if u_count < 3:
                         new_chat_messages.append(msg)
                         u_count += 1
                 elif msg["role"] == "assistant":
-                    if a_count < 4:
+                    if a_count < 3:
                         new_chat_messages.append(msg)
                         a_count += 1
 

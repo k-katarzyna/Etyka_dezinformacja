@@ -177,8 +177,8 @@ def ask_openai(messages, api_key, required_tag, model="gpt-4o-mini"):
     if new_context_needed or no_context_yet:
         from .load_context import search_chunks
         new_tags = extract_tags(last_user, api_key)
-        emb = embed_text(last_user, api_key)
-        chunks = search_chunks(emb, required_tag, new_tags)
+        # emb = embed_text(last_user, api_key)
+        chunks = search_chunks(last_user, api_key, required_tag, new_tags)
 
         context = "\n\n".join(
             f"Tytuł artykułu: {c.get('source')}\nTags: {c.get('tags', '')}\nURL: {c.get('url', '')}\n{c['content']}\n\n"

@@ -2,6 +2,7 @@ import json
 import streamlit as st
 import numpy as np
 from openai import OpenAI
+from .openai import embed_text
 
 
 @st.cache_resource
@@ -31,23 +32,23 @@ def filter_chunks_by_tags(chunks, required_tag=None, topic_tags=None):
 
     return filtered
 
-def translate(text, to_lang="en", api_key=None):
-    client = OpenAI(api_key=api_key)
-    prompt = f"Na język {to_lang}:\n\n{text}"
 
-    response = client.chat.completions.create(
-        model="gpt-4.1",
-        messages=[
-            {"role": "system", "content": "Jesteś tłumaczem. Zwracasz WYŁĄCZNIE przetłumaczony tekst."},
-            {"role": "user", "content": prompt}
-        ]
-    )
-    return response.choices[0].message.content.strip()
-
-
-def search_chunks(query_text, embed_func, api_key, required_tag=None, topic_tags=None, top_k=8):
+def search_chunks(query_text, api_key, required_tag=None, topic_tags=None, top_k=6):
 
     all_chunks = load_chunks()
+
+    def translate(text, to_lang="en", api_key=api_key):
+        client = OpenAI(api_key=api_key)
+        prompt = f"Na język {to_lang}:\n\n{text}"
+
+        response = client.chat.completions.create(
+            model="gpt-4.1",
+            messages=[
+                {"role": "system", "content": "Jesteś tłumaczem. Zwracasz WYŁĄCZNIE przetłumaczony tekst."},
+                {"role": "user", "content": prompt}
+            ]
+        )
+        return response.choices[0].message.content.strip()
 
     def filter_and_score(query_emb, tags):
 
@@ -59,11 +60,11 @@ def search_chunks(query_text, embed_func, api_key, required_tag=None, topic_tags
         scored.sort(key=lambda x: x[0], reverse=True)
         return scored[:top_k]
 
-    emb_orig = embed_func(query_text)
+    emb_orig = embed_text(query_text, api_key)
     scored_orig = filter_and_score(emb_orig, topic_tags)
 
     translated_text = translate(query_text, to_lang="en", api_key=api_key)
-    emb_trans = embed_func(translated_text)
+    emb_trans = embed_text(translated_text, api_key)
     scored_trans = filter_and_score(emb_trans, topic_tags)
 
     combined = scored_orig + scored_trans
