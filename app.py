@@ -110,42 +110,68 @@ if st.session_state.context_mode:
     else:
         st.success("Doskonale! Wiedza to najlepsza broń przeciwko manipulacji. Nauczę Cię, jak rozpoznawać podejrzane informacje i nie dać się złapać na fałszywe treści.")
 
-    for msg in st.session_state.messages:
-        if msg["role"] == "system":
-            continue
-        with st.chat_message(msg["role"]):
-            st.markdown(msg["content"])
+for msg in st.session_state.messages:
+    if msg["role"] == "system":
+        continue
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["content"])
 
-    user_input = st.chat_input("Zadaj pytanie...", disabled=st.session_state.locked)
+user_input = st.chat_input("Zadaj pytanie...", disabled=st.session_state.locked)
 
-    if user_input:
-        st.session_state.messages.append({"role": "user", "content": user_input})
-        with st.chat_message("user"):
-            st.markdown(user_input)
+if user_input:
+    st.session_state.messages.append({"role": "user", "content": user_input})
+    with st.chat_message("user"):
+        st.markdown(user_input)
 
-        with st.chat_message("assistant"):
-            placeholder = st.empty()
-            placeholder.markdown("""
-            <style>
-            .typing-dots span {
-              animation: blink 1.4s infinite both;
-            }
-            .typing-dots span:nth-child(2) {
-              animation-delay: 0.2s;
-            }
-            .typing-dots span:nth-child(3) {
-              animation-delay: 0.4s;
-            }
-            @keyframes blink {
-              0%   { opacity: 0.2; }
-              20%  { opacity: 1; }
-              100% { opacity: 0.2; }
-            }
-            </style>
-            <div class="typing-dots">⏳ Przetwarzam<span>.</span><span>.</span><span>.</span></div>
-            """, unsafe_allow_html=True)
+    with st.chat_message("assistant"):
+        placeholder = st.empty()
+        placeholder.markdown("""
+        <style>
+        .typing-dots span {
+          animation: blink 1.4s infinite both;
+        }
+        .typing-dots span:nth-child(2) {
+          animation-delay: 0.2s;
+        }
+        .typing-dots span:nth-child(3) {
+          animation-delay: 0.4s;
+        }
+        @keyframes blink {
+          0%   { opacity: 0.2; }
+          20%  { opacity: 1; }
+          100% { opacity: 0.2; }
+        }
+        </style>
+        <div class="typing-dots">⏳ Przetwarzam<span>.</span><span>.</span><span>.</span></div>
+        """, unsafe_allow_html=True)
 
-            response = ask_openai(st.session_state.messages, openai_api_key, st.session_state.context_mode)
-            placeholder.markdown(response)
-            st.session_state.messages.append({"role": "assistant", "content": response})
+        response = ask_openai(st.session_state.messages, openai_api_key, st.session_state.context_mode)
+        placeholder.markdown(response)
+        st.session_state.messages.append({"role": "assistant", "content": response})
+
+    if len(st.session_state.messages) > 10:
+        system_messages = [m for m in st.session_state.messages if m["role"] == "system"]
+        chat_messages = [m for m in st.session_state.messages if m["role"] in ("user", "assistant")]
+
+        user_count = sum(1 for m in chat_messages if m["role"] == "user")
+        assistant_count = sum(1 for m in chat_messages if m["role"] == "assistant")
+
+        if user_count > 5 or assistant_count > 4:
+            new_chat_messages = []
+            u_count, a_count = 0, 0
+
+            for msg in reversed(chat_messages):
+                if msg["role"] == "user":
+                    if u_count < 5:
+                        new_chat_messages.append(msg)
+                        u_count += 1
+                elif msg["role"] == "assistant":
+                    if a_count < 4:
+                        new_chat_messages.append(msg)
+                        a_count += 1
+
+            new_chat_messages = list(reversed(new_chat_messages))
+            st.session_state.messages = system_messages + new_chat_messages
+
+
 

@@ -45,7 +45,7 @@ def translate(text, to_lang="en", api_key=None):
     return response.choices[0].message.content.strip()
 
 
-def search_chunks(query_text, embed_func, api_key, required_tag=None, topic_tags=None, top_k=6):
+def search_chunks(query_text, embed_func, api_key, required_tag=None, topic_tags=None, top_k=8):
 
     all_chunks = load_chunks()
 
@@ -78,17 +78,3 @@ def search_chunks(query_text, embed_func, api_key, required_tag=None, topic_tags
             break
 
     return unique_chunks
-
-def search_chunks(query_embedding, required_tag=None, topic_tags=None, top_k=5):
-    all_chunks = load_chunks()
-    if required_tag:
-        chunks = filter_chunks_by_tags(all_chunks, required_tag, topic_tags)
-    else:
-        chunks = all_chunks
-
-    scored = []
-    for c in chunks:
-        score = cosine_similarity(query_embedding, c.get("embedding", []))
-        scored.append((score, c))
-        scored.sort(key=lambda x: x[0], reverse=True)
-    return [c for _, c in scored[:top_k]]
