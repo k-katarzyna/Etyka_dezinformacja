@@ -157,7 +157,7 @@ def ask_openai(messages, api_key, required_tag, model="gpt-4o-mini"):
             "Możliwe powody to:\n"
             "- pytanie jest poza zakresem tematyki dezinformacji generowanej przez AI\n"
             "- pytanie jest nieprecyzyjne lub niezrozumiałe\n\n"
-            "Zachęć użytkownika do przeformułowania pytania w zgodzie z tematyką dezinformacji, jeśli to możliwe. "
+            "Zachęć użytkownika do przeformułowania pytania w zgodzie z tematyką dezinformacji. "
             "Nie podawaj odpowiedzi na samo pytanie."
         )
         response = client.chat.completions.create(
@@ -180,13 +180,8 @@ def ask_openai(messages, api_key, required_tag, model="gpt-4o-mini"):
         emb = embed_text(last_user, api_key)
         chunks = search_chunks(emb, required_tag, new_tags)
 
-        block = "\n\n".join(
-            f"Artkuł: {c.get('source')}\nTags: {c.get('tags', '')}\nURL: {c.get('url', '')}\n{c['content']}\n\n"
-            for c in chunks
-        )
-
         context = "\n\n".join(
-            f"Artkuł: {c.get('source')}\nTags: {c.get('tags', '')}\nURL: {c.get('url', '')}\n{c['content']}\n\n"
+            f"Artykuł: {c.get('source')}\nTags: {c.get('tags', '')}\nURL: {c.get('url', '')}\n{c['content']}\n\n"
             for c in chunks
         )
         st.session_state['context'] = context

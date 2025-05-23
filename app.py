@@ -57,29 +57,38 @@ st.markdown("""
 
 st.markdown("""
 <style>
-    html[data-theme="dark"], html[data-theme="dark"] body, html[data-theme="dark"] [data-testid="stApp"] {
-        background-color: #FFF3E6 !important;
-        color: #1B1F3B !important;
-    }
 
-    html[data-theme="dark"] .stButton>button {
-        background-color: #FF8C69 !important;
-        color: white !important;
-    }
+html[data-theme="dark"] {
+    /* globalne kolory */
+    --text-color: #1B1F3B !important;
+    --secondary-text-color: #1B1F3B !important;
+    --background-color: #FFF3E6 !important;
+    --block-background-color: #FFF3E6 !important;
+    color-scheme: light;
+}
 
-    html[data-theme="dark"] .stButton>button:hover {
-        background-color: #E2735F !important;
-        color: white !important;
-    }
+html[data-theme="dark"],
+html[data-theme="dark"] body,
+html[data-theme="dark"] [data-testid="stApp"] {
+    background-color: #FFF3E6 !important;
+    color: #1B1F3B !important;
+}
 
-    html[data-theme="dark"] .typing {
-        color: #2B2B2B !important;
-    }
+html[data-theme="dark"] .stButton>button {
+    background-color: #FF8C69 !important;
+    color: #fff !important;
+}
+html[data-theme="dark"] .stButton>button:hover {
+    background-color: #E2735F !important;
+}
+
+html[data-theme="dark"] .typing {
+    color: #2B2B2B !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
 openai_api_key = st.secrets["openai"]["api_key"]
-
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
